@@ -123,7 +123,9 @@ Backend local repo:
 
 - PRs merge into `main`.
 - `main` push triggers backend build, FE bundle injection, Docker image build/push, and local Ubuntu deployment.
+- Build jobs run on GitHub-hosted runners.
 - The deploy job runs on a self-hosted runner labeled `self-hosted`, `linux`, and `local-ubuntu` because the local server is not publicly reachable yet.
+- The self-hosted runner should only pull the already-built Docker image and switch local containers. It should not build FE, build BE, or expose SSH for CI/CD.
 
 Frontend local repo:
 
