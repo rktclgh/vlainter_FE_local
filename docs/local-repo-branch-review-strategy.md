@@ -154,7 +154,8 @@ The path should contain:
 - `deploy/`,
 - compose files,
 - runtime state such as active blue/green color,
-- local Docker volumes for PostgreSQL, Redis, and S3-compatible storage.
+- host-level PostgreSQL/Redis shared across projects,
+- a local Docker volume for S3-compatible storage.
 
 ## Safety Rules
 
