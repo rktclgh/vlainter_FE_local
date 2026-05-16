@@ -394,23 +394,6 @@ export async function createStudentWrongAnswerSet(sessionId, { title, questionId
   });
 }
 
-export async function updateMyGeminiApiKey(geminiApiKey) {
-  return apiRequest("/api/users/me/gemini-api-key", {
-    method: "PUT",
-    retryOnUnauthorized: true,
-    body: {
-      geminiApiKey,
-    },
-  });
-}
-
-export async function clearMyGeminiApiKey() {
-  return apiRequest("/api/users/me/gemini-api-key", {
-    method: "DELETE",
-    retryOnUnauthorized: true,
-  });
-}
-
 export async function deleteMyAccount() {
   return apiRequest("/api/users/me", {
     method: "DELETE",

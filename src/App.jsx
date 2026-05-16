@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Outlet } from 'react-router-dom'
-import { GeminiApiKeyGuard } from './components/GeminiApiKeyGuard'
 import { BrowserSessionGuard } from './components/BrowserSessionGuard'
 import './App.css'
 
@@ -47,9 +46,7 @@ const RouteFallback = () => (
 
 const GuardedContentRoutes = () => (
   <BrowserSessionGuard>
-    <GeminiApiKeyGuard>
-      <Outlet />
-    </GeminiApiKeyGuard>
+    <Outlet />
   </BrowserSessionGuard>
 )
 

@@ -39,11 +39,6 @@ const collectionRows = {
     items: "제목, 문의 내용, 첨부 이미지, 현재 경로, 브라우저 정보",
     retention: "문의 처리 완료 후 3년 또는 관련 법령이 정한 기간",
   },
-  {
-    purpose: "사용자 제공 AI API 키 관리",
-    items: "사용자가 직접 등록한 Gemini API 키(암호화 저장), 등록 여부",
-    retention: "회원이 삭제하거나 회원 탈퇴 시까지",
-  },
 ],
   en: [
     {
@@ -80,11 +75,6 @@ const collectionRows = {
       purpose: "Support and error report handling",
       items: "Title, inquiry content, attached image, current path, browser information",
       retention: "For 3 years after processing is completed or for the period required by law",
-    },
-    {
-      purpose: "User-provided AI API key management",
-      items: "Gemini API key directly registered by the user (stored in encrypted form), registration status",
-      retention: "Until the user deletes it or withdraws the account",
     },
   ],
 };
