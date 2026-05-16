@@ -6,7 +6,6 @@ import { MobileSidebarDrawer } from "../../components/MobileSidebarDrawer";
 import { PointChargeModal } from "../../components/PointChargeModal";
 import { PointChargeSuccessModal } from "../../components/PointChargeSuccessModal";
 import { AcademicProfileFields } from "../../components/AcademicProfileFields";
-import { GeminiApiGuideModal } from "../../components/GeminiApiKeyGuard";
 import { useToast } from "../../hooks/useToast";
 import tempProfileImage from "../../assets/icon/temp.png";
 import { isAuthenticationError } from "../../lib/apiClient";
@@ -22,7 +21,6 @@ import {
 } from "../../lib/paymentApi";
 import {
   changeMyPassword,
-  clearMyGeminiApiKey,
   deleteMyAccount,
   deleteMyFile,
   getMyFiles,
@@ -30,7 +28,6 @@ import {
   getMyProfileImageUrl,
   getMyStudentCourses,
   updateMyAcademicProfile,
-  updateMyGeminiApiKey,
   updateMyServiceMode,
   uploadMyFile,
 } from "../../lib/userApi";
@@ -407,11 +404,6 @@ export const MyPage = () => {
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
 
   const [profileUploading, setProfileUploading] = useState(false);
-  const [hasGeminiApiKey, setHasGeminiApiKey] = useState(false);
-  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState("");
-  const [geminiApiKeySubmitting, setGeminiApiKeySubmitting] = useState(false);
-  const [removingGeminiApiKey, setRemovingGeminiApiKey] = useState(false);
-  const [showGeminiApiGuideModal, setShowGeminiApiGuideModal] = useState(false);
   const profileImageInputRef = useRef(null);
 
   const [activeHistoryTab, setActiveHistoryTab] = useState("payment");
@@ -498,7 +490,6 @@ export const MyPage = () => {
         setSelectedUniversityId((current) => normalizeOptionalId(profile?.universityId) ?? current);
         setDepartmentName(String(profile?.departmentName || ""));
         setSelectedDepartmentId((current) => normalizeOptionalId(profile?.departmentId) ?? current);
-        setHasGeminiApiKey(Boolean(profile?.hasGeminiApiKey));
         setProfileImageUrl(getMyProfileImageUrl());
         const hasStudentAcademicProfile = hasAcademicProfile(profile);
         if (normalizedMode === SERVICE_MODE.STUDENT && hasStudentAcademicProfile) {
@@ -631,41 +622,6 @@ export const MyPage = () => {
       setPasswordErrorMessage(error?.message || "비밀번호 변경에 실패했습니다.");
     } finally {
       setPasswordSubmitting(false);
-    }
-  };
-
-  const submitGeminiApiKey = async () => {
-    const normalizedKey = geminiApiKeyInput.trim();
-    if (!normalizedKey) {
-      showToast("Gemini API 키를 입력해 주세요.", { type: "error" });
-      return;
-    }
-    setGeminiApiKeySubmitting(true);
-    try {
-      const payload = await updateMyGeminiApiKey(normalizedKey);
-      const profile = extractProfile(payload);
-      setHasGeminiApiKey(Boolean(profile?.hasGeminiApiKey));
-      setGeminiApiKeyInput("");
-      showToast("Gemini API 키가 저장되었습니다.", { type: "success" });
-    } catch (error) {
-      showToast(error?.message || "Gemini API 키 저장에 실패했습니다.", { type: "error" });
-    } finally {
-      setGeminiApiKeySubmitting(false);
-    }
-  };
-
-  const removeGeminiApiKey = async () => {
-    setRemovingGeminiApiKey(true);
-    try {
-      const payload = await clearMyGeminiApiKey();
-      const profile = extractProfile(payload);
-      setHasGeminiApiKey(Boolean(profile?.hasGeminiApiKey));
-      setGeminiApiKeyInput("");
-      showToast("Gemini API 키가 제거되었습니다.", { type: "success" });
-    } catch (error) {
-      showToast(error?.message || "Gemini API 키 제거에 실패했습니다.", { type: "error" });
-    } finally {
-      setRemovingGeminiApiKey(false);
     }
   };
 
@@ -1020,56 +976,6 @@ export const MyPage = () => {
               </div>
 
               <div className="mt-4 rounded-[16px] border border-[#e0e0e0] bg-white p-6">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-[18px] font-medium text-[#1f1f1f]">Gemini API 키</h2>
-                  <button
-                    type="button"
-                    onClick={() => setShowGeminiApiGuideModal(true)}
-                    className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#d1d5db] text-[12px] font-semibold text-[#4b5563]"
-                    aria-label="Gemini API 키 발급 가이드 보기"
-                  >
-                    ?
-                  </button>
-                </div>
-                <p className="mt-1 whitespace-pre-line text-[12px] leading-[1.6] text-[#7a7a7a]">
-                  {"본 서비스는 Gemini API를 기반으로 작동합니다.\n입력하신 API 키는 암호화되어 관리되며 비용이 따로 발생하지 않습니다."}
-                </p>
-                <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                  <input
-                    type="password"
-                    value={geminiApiKeyInput}
-                    onChange={(event) => setGeminiApiKeyInput(event.target.value)}
-                    disabled={hasGeminiApiKey || geminiApiKeySubmitting}
-                    placeholder={hasGeminiApiKey ? "API 키가 등록되어 있습니다." : "Gemini API 키 입력"}
-                    className="h-[40px] w-full rounded-[10px] border border-[#d8d8d8] px-3 text-[13px] text-[#202020] outline-none focus:border-[#9a9a9a] disabled:bg-[#f3f5f8] disabled:text-[#7a7a7a]"
-                  />
-                  <div className="flex items-center gap-2 sm:shrink-0">
-                    <button
-                      type="button"
-                      onClick={submitGeminiApiKey}
-                      disabled={hasGeminiApiKey || geminiApiKeySubmitting || removingGeminiApiKey}
-                      className="min-w-[88px] whitespace-nowrap rounded-[10px] border border-[#1f1f1f] bg-[#1f1f1f] px-3 py-2 text-[11px] text-white disabled:opacity-60 sm:text-[12px]"
-                    >
-                      {geminiApiKeySubmitting ? "저장 중..." : "저장"}
-                    </button>
-                    {hasGeminiApiKey ? (
-                      <button
-                        type="button"
-                        onClick={removeGeminiApiKey}
-                        disabled={geminiApiKeySubmitting || removingGeminiApiKey}
-                        className="min-w-[88px] whitespace-nowrap rounded-[10px] border border-[#d84a4a] bg-[#fff1f1] px-3 py-2 text-[11px] font-semibold text-[#d84a4a] disabled:opacity-60 sm:text-[12px]"
-                      >
-                        {removingGeminiApiKey ? "삭제 중..." : "키 제거"}
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-                <p className="mt-2 text-[12px] text-[#4f5664]">
-                  현재 상태: {hasGeminiApiKey ? "등록됨" : "미등록"}
-                </p>
-              </div>
-
-              <div className="mt-4 rounded-[16px] border border-[#e0e0e0] bg-white p-6">
                 <h2 className="text-[18px] font-medium text-[#1f1f1f]">보안 설정</h2>
                 <p className="mt-1 text-[12px] text-[#7a7a7a]">비밀번호 변경 시 현재 세션은 종료되며 다시 로그인해야 합니다.</p>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -1301,12 +1207,6 @@ export const MyPage = () => {
         />
       ) : null}
       {showReLoginGuideModal ? <ReLoginGuideModal onConfirm={moveToLoginAfterPasswordChange} /> : null}
-      {showGeminiApiGuideModal ? (
-        <GeminiApiGuideModal
-          onClose={() => setShowGeminiApiGuideModal(false)}
-          onGoToMyPage={() => setShowGeminiApiGuideModal(false)}
-        />
-      ) : null}
     </div>
   );
 };
